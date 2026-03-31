@@ -125,8 +125,18 @@ Singleton {
     try {
       if (iconName && typeof Quickshell !== 'undefined' && Quickshell.iconPath) {
         const p = Quickshell.iconPath(iconName, fallback);
-        if (p && p !== "")
+        if (p && p !== "") {
+          // If an absolute path resolved to image-missing, try basename as theme icon
+          if (iconName.startsWith("/") && p.includes("image-missing")) {
+            const basename = iconName.substring(iconName.lastIndexOf("/") + 1).replace(/\.[^.]+$/, "");
+            if (basename) {
+              const themed = Quickshell.iconPath(basename, true);
+              if (themed && themed !== "" && !themed.includes("image-missing"))
+                return themed;
+            }
+          }
           return p;
+        }
       }
     } catch (e) {}
 
